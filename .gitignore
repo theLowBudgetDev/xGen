@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.pem
+
+# Build artifacts
+target/
+output/
+dist/
+build/
+*.wasm
+*.abi.json
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage/
+
+# Deployment
+contract_address.txt
+
+# Gemini artifacts (optional - keep for reference)
+# .gemini/

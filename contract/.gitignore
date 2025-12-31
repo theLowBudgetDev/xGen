@@ -1,0 +1,27 @@
+# Rust/MultiversX Contract
+target/
+output/
+*.wasm
+*.abi.json
+
+# Build artifacts
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Deployment
+contract_address.txt
+wallet.pem
+*.pem
