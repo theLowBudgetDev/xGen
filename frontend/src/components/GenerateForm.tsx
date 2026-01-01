@@ -1,125 +1,194 @@
-import { useState } from 'react'
-import { sendTransactions } from '@multiversx/sdk-dapp/services'
-import { refreshAccount } from '@multiversx/sdk-dapp/utils'
+import { useState, useEffect } from 'react'
+import { useGetAccountInfo } from '@multiversx/sdk-dapp/hooks'
+import { getUserGenerationsToday } from '../lib/contract'
 
-// Helper to convert string to hex (browser-compatible)
-const stringToHex = (str: string) => {
-  return Array.from(str)
-    .map(c => c.charCodeAt(0).toString(16).padStart(2, '0'))
-    .join('')
+interface GenerateFormProps {
+  onStartGeneration: (sessionId: string, description: string, category: string) => void
 }
 
-const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS
-
-const CATEGORIES = ['DeFi', 'NFT', 'DAO', 'GameFi', 'Utility']
-
-export function GenerateForm() {
+export function GenerateForm({ onStartGeneration }: GenerateFormProps) {
+  const { address } = useGetAccountInfo()
   const [description, setDescription] = useState('')
-  const [category, setCategory] = useState('DeFi')
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [dailyCount, setDailyCount] = useState(0)
+  const [loadingCount, setLoadingCount] = useState(true)
+
+  useEffect(() => {
+    fetchDailyCount()
+  }, [address])
+
+  const fetchDailyCount = async () => {
+    setLoadingCount(true)
+    try {
+      const count = await getUserGenerationsToday(address)
+      setDailyCount(count)
+    } catch (error) {
+      console.error('Error fetching daily count:', error)
+    } finally {
+      setLoadingCount(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!description.trim()) return
-
-    setIsSubmitting(true)
-
-    try {
-      const descHex = stringToHex(description)
-      const catHex = stringToHex(category)
-
-      await sendTransactions({
-        transactions: [{
-          value: '0',
-          data: `generateContract@${descHex}@${catHex}`,
-          receiver: CONTRACT_ADDRESS,
-          gasLimit: 10000000,
-        }],
-        transactionsDisplayInfo: {
-          processingMessage: 'Submitting generation request...',
-          errorMessage: 'Transaction failed',
-          successMessage: 'Success! Check "My Generations" in ~10 seconds',
-        },
-      })
-
-      setDescription('')
-      await refreshAccount()
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setIsSubmitting(false)
+    if (dailyCount >= 3) {
+      alert('Daily limit reached (3/day)')
+      return
     }
+
+    const sessionId = `gen-${Date.now()}-${Math.random().toString(36).substring(7)}`
+    onStartGeneration(sessionId, description, 'DeFi')
+    setDescription('')
   }
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', backgroundColor: '#1e293b', borderRadius: '1rem', border: '1px solid #334155', padding: '2.5rem' }}>
-      <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#f1f5f9' }}>Generate Smart Contract</h2>
-      <p style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '2rem' }}>Powered by Gemini 2.0 Flash • Stored on IPFS</p>
-      
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem', color: '#f1f5f9' }}>Category</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            style={{ width: '100%', padding: '0.75rem 1rem', border: '1px solid #475569', borderRadius: '0.5rem', backgroundColor: '#0f172a', color: '#f1f5f9', fontSize: '1rem' }}
-          >
-            {CATEGORIES.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+    <div style={{ maxWidth: '750px', margin: '0 auto', textAlign: 'center' }}>
+      {/* Hero Section */}
+      <div style={{ marginBottom: '2.5rem' }}>
+        <h2 style={{ 
+          fontSize: 'clamp(2rem, 4vw, 3rem)', 
+          fontWeight: '700', 
+          marginBottom: '1rem', 
+          color: '#ffffff',
+          lineHeight: '1.1',
+          letterSpacing: '-0.02em'
+        }}>
+          What will you <span style={{ color: '#06b6d4' }}>build</span> today?
+        </h2>
+        <p style={{ fontSize: '1.125rem', color: 'rgba(255, 255, 255, 0.6)', margin: 0 }}>
+          Generate smart contracts with AI
+        </p>
+      </div>
+
+      {/* Features - Small Icons Above Input */}
+      <div style={{ 
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '2rem',
+        marginBottom: '2rem',
+        flexWrap: 'wrap'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.6)' }}>AI-Powered</span>
         </div>
 
-        <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem', color: '#f1f5f9' }}>Contract Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe your smart contract in detail...&#10;&#10;Example: Create a staking contract where users can stake EGLD tokens and earn 10% APY rewards. Include functions for staking, unstaking, claiming rewards, and viewing staked balance."
-            rows={10}
-            style={{ width: '100%', padding: '1rem', border: '1px solid #475569', borderRadius: '0.5rem', resize: 'none', fontFamily: 'inherit', backgroundColor: '#0f172a', color: '#f1f5f9', fontSize: '1rem', lineHeight: '1.6' }}
-            required
-          />
-          <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.5rem' }}>
-            💡 Be specific about features, functions, and behavior. The more detail, the better the result!
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke="#06b6d4" strokeWidth="2"/>
+            <path d="M9 9L12 12L9 15" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M13 15H17" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+          <span style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.6)' }}>Real-Time IDE</span>
         </div>
 
-        <div style={{ backgroundColor: '#1e3a8a', border: '1px solid #3b82f6', borderRadius: '0.5rem', padding: '1rem' }}>
-          <p style={{ fontSize: '0.875rem', color: '#93c5fd', margin: 0 }}>
-            <strong>⚡ Free Generation:</strong> You can generate up to 3 contracts per day. No payment required!
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M14.7 6.3C15.1 5.9 15.7 5.9 16.1 6.3L20.7 10.9C21.1 11.3 21.1 11.9 20.7 12.3L16.1 16.9C15.7 17.3 15.1 17.3 14.7 16.9C14.3 16.5 14.3 15.9 14.7 15.5L18.2 12L14.7 8.5C14.3 8.1 14.3 7.5 14.7 7.1Z" fill="#06b6d4"/>
+            <path d="M9.3 6.3C8.9 5.9 8.3 5.9 7.9 6.3L3.3 10.9C2.9 11.3 2.9 11.9 3.3 12.3L7.9 16.9C8.3 17.3 8.9 17.3 9.3 16.9C9.7 16.5 9.7 15.9 9.3 15.5L5.8 12L9.3 8.5C9.7 8.1 9.7 7.5 9.3 7.1Z" fill="#06b6d4"/>
+          </svg>
+          <span style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.6)' }}>Auto-Compile</span>
         </div>
 
-        <div style={{ backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '0.5rem', padding: '1rem' }}>
-          <p style={{ fontSize: '0.875rem', color: '#fbbf24', margin: '0 0 0.5rem 0', fontWeight: '600' }}>
-            ⚠️ Need testnet EGLD?
-          </p>
-          <p style={{ fontSize: '0.875rem', color: '#94a3b8', margin: 0 }}>
-            Get free devnet EGLD from the faucet: <a href="https://devnet-wallet.multiversx.com/faucet" target="_blank" rel="noopener noreferrer" style={{ color: '#60a5fa', textDecoration: 'underline' }}>MultiversX Devnet Faucet</a>
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#06b6d4" strokeWidth="2"/>
+            <path d="M8 12L11 15L16 9" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.6)' }}>Self-Healing</span>
         </div>
+      </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting || !description.trim()}
-          style={{ 
-            width: '100%', 
-            padding: '1rem 1.5rem', 
-            fontSize: '1.125rem',
-            fontWeight: '600',
-            color: 'white', 
-            backgroundColor: isSubmitting || !description.trim() ? '#475569' : '#3b82f6', 
-            border: 'none', 
-            borderRadius: '0.5rem', 
-            cursor: isSubmitting || !description.trim() ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s'
-          }}
-        >
-          {isSubmitting ? '⏳ Submitting...' : '🚀 Generate Contract'}
-        </button>
-      </form>
+      {/* Input Section - Icon Button Centered */}
+      <div style={{
+        backgroundColor: 'rgba(30, 30, 30, 0.6)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: '1rem',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        padding: '0.5rem',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+        position: 'relative'
+      }}>
+        {/* Daily Count Badge */}
+        {!loadingCount && (
+          <div style={{
+            position: 'absolute',
+            top: '-0.75rem',
+            right: '1rem',
+            fontSize: '0.7rem',
+            color: 'rgba(255, 255, 255, 0.5)',
+            padding: '0.2rem 0.6rem',
+            backgroundColor: 'rgba(20, 20, 20, 0.9)',
+            borderRadius: '1rem',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            {dailyCount}/3
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div style={{
+            backgroundColor: 'rgba(20, 20, 20, 0.8)',
+            borderRadius: '0.75rem',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            padding: '0.75rem',
+            display: 'flex',
+            gap: '0.75rem',
+            alignItems: 'center'
+          }}>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe your smart contract..."
+              rows={3}
+              style={{
+                flex: 1,
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+                color: '#ffffff',
+                fontSize: '0.875rem',
+                fontFamily: 'inherit',
+                resize: 'none',
+                lineHeight: '1.5'
+              }}
+              required
+            />
+
+            {/* Icon Button - Centered */}
+            <button
+              type="submit"
+              disabled={!description.trim() || dailyCount >= 3}
+              title="Generate"
+              style={{
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: !description.trim() || dailyCount >= 3 
+                  ? 'rgba(255, 255, 255, 0.1)' 
+                  : '#06b6d4',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: !description.trim() || dailyCount >= 3 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                flexShrink: 0,
+                fontSize: '1.25rem',
+                color: '#ffffff',
+                fontWeight: 'bold'
+              }}
+            >
+              →
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

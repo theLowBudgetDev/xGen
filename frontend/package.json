@@ -10,11 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@multiversx/sdk-core": "^14.0.0",
     "@multiversx/sdk-dapp": "^4.6.4",
     "@multiversx/sdk-network-providers": "^2.5.3",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-split": "^2.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

@@ -8,6 +8,7 @@ import { CodeGenerator } from './gemini/generator';
 import { IPFSStorage } from './ipfs/storage';
 import { EventListener } from './multiversx/listener';
 import { OracleCallback } from './multiversx/oracle';
+import generationRoutes from './routes/generation';
 
 const app = express();
 
@@ -22,6 +23,9 @@ const limiter = rateLimit({
   message: 'Too many requests, please try again later'
 });
 app.use('/api/', limiter);
+
+// Routes
+app.use('/api/generation', generationRoutes);
 
 // Initialize services
 let codeGenerator: CodeGenerator;
