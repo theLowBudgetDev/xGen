@@ -12,6 +12,7 @@
     "@google/generative-ai": "^0.21.0",
     "@multiversx/sdk-core": "^14.0.0",
     "@multiversx/sdk-network-providers": "^2.5.3",
+    "@multiversx/sdk-wallet": "^4.6.0",
     "@pinata/sdk": "^2.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

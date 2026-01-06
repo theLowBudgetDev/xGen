@@ -5,7 +5,6 @@ import {
   Address, 
   SmartContract,
   Transaction,
-  TransactionPayload,
   TokenTransfer
 } from '@multiversx/sdk-core';
 import { UserSigner } from '@multiversx/sdk-wallet';
@@ -56,15 +55,15 @@ export class OracleCallback {
       
       // Build transaction
       const tx = new Transaction({
-        data: new TransactionPayload(
+        data: Buffer.from(
           `completeGeneration@${this.numberToHex(generationId)}@${this.stringToHex(codeHash)}@${success ? '01' : '00'}`
         ),
-        gasLimit: 10_000_000,
+        gasLimit: BigInt(10_000_000),
         receiver: this.contract.getAddress(),
         sender: this.signerAddress,
-        value: TokenTransfer.egldFromAmount(0),
+        value: 0n,
         chainID: this.chainId,
-        nonce: account.nonce
+        nonce: BigInt(account.nonce)
       });
 
       // Sign transaction
