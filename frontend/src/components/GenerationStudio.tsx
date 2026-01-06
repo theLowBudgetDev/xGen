@@ -52,8 +52,9 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
 
     client.on('file', (data: any) => {
       setFiles(prev => new Map(prev).set(data.path, data.content))
-      if (!currentFile || data.path === 'src/lib.rs') {
-        setCurrentFile(data.path)
+      // Auto-open README.md when it arrives
+      if (data.path === 'README.md') {
+        setCurrentFile('README.md')
       }
     })
 
@@ -471,7 +472,7 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
           </div>
           <Editor
             height="100%"
-            language="rust"
+            language={currentFile?.endsWith('.md') ? 'markdown' : 'rust'}
             theme="vs-dark"
             value={files.get(currentFile) || '// Waiting for code generation...'}
             options={{
@@ -480,7 +481,8 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
               fontSize: 14,
               lineNumbers: 'on',
               scrollBeyondLastLine: false,
-              automaticLayout: true
+              automaticLayout: true,
+              wordWrap: currentFile?.endsWith('.md') ? 'on' : 'off'
             }}
           />
         </div>

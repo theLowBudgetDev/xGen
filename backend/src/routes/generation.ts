@@ -79,7 +79,7 @@ async function runGeneration(sessionId: string, description: string, category: s
     streamManager.sendStatus(sessionId, 'Creating project structure...', 40)
     streamManager.sendTerminal(sessionId, '\\n> Creating project files...\\n')
 
-    const projectFiles = generateProjectFiles(contractCode, 'contract')
+    const projectFiles = generateProjectFiles(contractCode, 'contract', description, category)
     
     // Send all files to frontend
     for (const file of projectFiles) {
