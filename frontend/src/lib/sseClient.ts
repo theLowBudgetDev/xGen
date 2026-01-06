@@ -40,24 +40,25 @@ export class SSEClient {
       this.eventSource.onerror = (error) => {
         console.error('SSE error:', error)
         
-        const callback = this.callbacks.get('error')
-        if (callback) {
-          if (this.reconnectAttempts < this.maxReconnectAttempts) {
-            this.reconnectAttempts++
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+          this.reconnectAttempts++
+          const callback = this.callbacks.get('status')
+          if (callback) {
             callback({ 
-              error: `Connection lost. Reconnecting (${this.reconnectAttempts}/${this.maxReconnectAttempts})...` 
+              message: `Connection lost. Reconnecting (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`,
+              progress: 0
             })
-          } else {
-            callback({ 
+          }
+          
+          this.eventSource?.close()
+          setTimeout(() => this.connect(userId), 2000)
+        } else {
+          const errorCallback = this.callbacks.get('error')
+          if (errorCallback) {
+            errorCallback({ 
               error: 'Connection failed. Please check if backend is running at ' + apiUrl 
             })
           }
-        }
-        
-        // Close and try to reconnect
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
-          this.eventSource?.close()
-          setTimeout(() => this.connect(userId), 2000)
         }
       }
     } catch (error) {

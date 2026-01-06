@@ -5,7 +5,9 @@ export async function fetchCodeFromIPFS(cid: string): Promise<string> {
     if (!response.ok) {
       throw new Error('Failed to fetch from IPFS')
     }
-    return await response.text()
+    const data = await response.json()
+    // IPFS stores {code, metadata} structure
+    return data.code || data
   } catch (error) {
     console.error('Error fetching from IPFS:', error)
     throw error

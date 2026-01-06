@@ -40,6 +40,14 @@ async function initializeServices() {
     // Validate configuration
     validateConfig();
 
+    const mockMode = process.env.MOCK_MODE === 'true';
+
+    if (mockMode) {
+      console.log('🎭 MOCK MODE - Skipping external service initialization');
+      console.log('✅ All services initialized (mock mode)');
+      return;
+    }
+
     // Initialize Gemini
     codeGenerator = new CodeGenerator(config.geminiApiKey);
     console.log('✅ Gemini AI initialized');

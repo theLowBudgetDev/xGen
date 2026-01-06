@@ -186,4 +186,17 @@ router.post('/deploy', async (req: Request, res: Response) => {
   }
 })
 
+// Get user generations (for history)
+router.get('/user/:address', async (req: Request, res: Response) => {
+  const { address } = req.params
+  
+  try {
+    // In production, query from database or indexer
+    // For now, return empty array
+    res.json({ generations: [] })
+  } catch (error: any) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
 export default router

@@ -17,9 +17,6 @@ export async function getUserGenerationsToday(address: string): Promise<number> 
   try {
     console.log('Fetching daily count for:', address)
     
-    // Convert address to hex (remove erd1 prefix)
-    const addressHex = address.replace('erd1', '')
-    
     const response = await fetch(
       `${API_URL}/query`,
       {
@@ -28,7 +25,7 @@ export async function getUserGenerationsToday(address: string): Promise<number> 
         body: JSON.stringify({
           scAddress: CONTRACT_ADDRESS,
           funcName: 'getUserGenerationsToday',
-          args: [Buffer.from(addressHex, 'hex').toString('base64')],
+          args: [Buffer.from(address, 'utf8').toString('base64')],
         }),
       }
     )
@@ -111,28 +108,32 @@ function parseStatus(hex: string): 'Pending' | 'Completed' | 'Failed' {
 export async function getUserGenerations(address: string): Promise<Generation[]> {
   try {
     console.log('Fetching all generations for:', address)
-    const generations: Generation[] = []
     
-    // Remove erd1 prefix for comparison
-    const addressHex = address.replace('erd1', '').toLowerCase()
-    
-    // Try to fetch recent generations (check last 50 IDs)
-    // In production, you'd use an indexer or event listener
-    const promises = []
-    for (let i = 1; i <= 50; i++) {
-      promises.push(getGeneration(i))
+    // Use backend endpoint if available, otherwise fallback to direct query
+    const backendUrl = import.meta.env.VITE_API_URL
+    if (backendUrl) {
+      try {
+        const response = await fetch(`${backendUrl}/api/generation/user/${address}`)
+        if (response.ok) {
+          const data = await response.json()
+          return data.generations || []
+        }
+      } catch (e) {
+        console.log('Backend not available, using direct query')
+      }
     }
     
-    const results = await Promise.all(promises)
+    // Fallback: direct query (limited to last 10 for performance)
+    const generations: Generation[] = []
+    const addressHex = address.toLowerCase()
     
-    for (const gen of results) {
+    for (let i = 1; i <= 10; i++) {
+      const gen = await getGeneration(i)
       if (gen && gen.creator.toLowerCase().includes(addressHex)) {
-        console.log('Found user generation:', gen.id)
         generations.push(gen)
       }
     }
     
-    console.log(`Found ${generations.length} generations for user`)
     return generations.sort((a, b) => b.timestamp - a.timestamp)
   } catch (error) {
     console.error('Error fetching user generations:', error)

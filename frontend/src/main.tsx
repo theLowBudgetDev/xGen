@@ -7,7 +7,7 @@ import { TransactionsToastList } from '@multiversx/sdk-dapp/UI/TransactionsToast
 import App from './App.tsx'
 import './index.css'
 
-const walletConnectV2ProjectId = '9b1a9564f91cb659ffe21b73d5c4e2d8'
+const walletConnectV2ProjectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '9b1a9564f91cb659ffe21b73d5c4e2d8'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
