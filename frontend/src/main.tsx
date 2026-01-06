@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 import { DappProvider } from '@multiversx/sdk-dapp/wrappers/DappProvider'
 import { NotificationModal } from '@multiversx/sdk-dapp/UI/NotificationModal'
 import { SignTransactionsModals } from '@multiversx/sdk-dapp/UI/SignTransactionsModals'
@@ -11,18 +12,20 @@ const walletConnectV2ProjectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID |
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <DappProvider
-      environment="devnet"
-      customNetworkConfig={{
-        name: 'devnet',
-        apiTimeout: 10000,
-        walletConnectV2ProjectId
-      }}
-    >
-      <App />
-      <NotificationModal />
-      <SignTransactionsModals />
-      <TransactionsToastList />
-    </DappProvider>
+    <BrowserRouter>
+      <DappProvider
+        environment="devnet"
+        customNetworkConfig={{
+          name: 'devnet',
+          apiTimeout: 10000,
+          walletConnectV2ProjectId
+        }}
+      >
+        <App />
+        <NotificationModal />
+        <SignTransactionsModals />
+        <TransactionsToastList />
+      </DappProvider>
+    </BrowserRouter>
   </React.StrictMode>,
 )

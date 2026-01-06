@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useGetAccountInfo } from '@multiversx/sdk-dapp/hooks'
 import { sendTransactions } from '@multiversx/sdk-dapp/services'
 import { refreshAccount } from '@multiversx/sdk-dapp/utils'
@@ -6,13 +7,6 @@ import Editor from '@monaco-editor/react'
 import Split from 'react-split'
 import JSZip from 'jszip'
 import { SSEClient } from '../lib/sseClient'
-
-interface GenerationStudioProps {
-  sessionId: string
-  description: string
-  category: string
-  onClose: () => void
-}
 
 // Helper to convert string to hex
 const stringToHex = (str: string) => {
@@ -23,8 +17,13 @@ const stringToHex = (str: string) => {
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS
 
-export function GenerationStudio({ sessionId, description, category, onClose }: GenerationStudioProps) {
+export function GenerationStudio() {
+  const { sessionId } = useParams<{ sessionId: string }>()
+  const location = useLocation()
+  const navigate = useNavigate()
   const { address } = useGetAccountInfo()
+  const { description, category } = location.state || { description: '', category: '' }
+  
   const [files, setFiles] = useState<Map<string, string>>(new Map())
   const [currentFile, setCurrentFile] = useState<string>('src/lib.rs')
   const [terminal, setTerminal] = useState<string[]>([])
@@ -37,6 +36,11 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
   const [isDeploying, setIsDeploying] = useState(false)
 
   useEffect(() => {
+    if (!sessionId) {
+      navigate('/')
+      return
+    }
+
     const client = new SSEClient(sessionId)
     
     client.on('connected', () => {
@@ -104,7 +108,7 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
     return () => {
       client.close()
     }
-  }, [sessionId, address])
+  }, [sessionId, address, navigate])
 
   const startGeneration = async () => {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
@@ -207,7 +211,7 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <h2 style={{ margin: 0, color: '#cccccc', fontSize: '0.875rem', fontWeight: '600' }}>
-                Session #{sessionId.substring(0, 8)}
+                Session #{sessionId?.substring(0, 8)}
               </h2>
               <span style={{ color: '#858585', fontSize: '0.75rem' }}>
                 {status}
@@ -381,7 +385,7 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
 
             {/* Close Button */}
             <button
-              onClick={onClose}
+              onClick={() => navigate('/')}
               title="Close"
               style={{ 
                 width: '36px',
