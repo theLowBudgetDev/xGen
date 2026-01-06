@@ -208,46 +208,199 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
               {status} {progress > 0 && `(${progress}%)`}
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             {files.size > 0 && (
               <>
+                {/* Download Current File */}
                 <button
                   onClick={downloadCode}
-                  style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', backgroundColor: '#0e639c', color: 'white', border: 'none', borderRadius: '0.25rem', cursor: 'pointer' }}
+                  title="Download Current File"
+                  style={{ 
+                    width: '36px',
+                    height: '36px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'transparent', 
+                    color: '#cccccc', 
+                    border: 'none', 
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    padding: 0
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#ffffff'
+                    const svg = e.currentTarget.querySelector('svg')
+                    if (svg) svg.style.stroke = '#ffffff'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#cccccc'
+                    const svg = e.currentTarget.querySelector('svg')
+                    if (svg) svg.style.stroke = '#cccccc'
+                  }}
                 >
-                  Download Current
+                  <svg 
+                    width="20" 
+                    height="20" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="#cccccc" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    style={{ transition: 'stroke 0.2s' }}
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
                 </button>
+
+                {/* Download All Files */}
                 <button
                   onClick={downloadAll}
-                  style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', backgroundColor: '#0e639c', color: 'white', border: 'none', borderRadius: '0.25rem', cursor: 'pointer' }}
+                  title="Download All Files"
+                  style={{ 
+                    width: '36px',
+                    height: '36px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'transparent', 
+                    color: '#cccccc', 
+                    border: 'none', 
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    padding: 0
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#ffffff'
+                    const svg = e.currentTarget.querySelector('svg')
+                    if (svg) svg.style.stroke = '#ffffff'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#cccccc'
+                    const svg = e.currentTarget.querySelector('svg')
+                    if (svg) svg.style.stroke = '#cccccc'
+                  }}
                 >
-                  Download All
+                  <svg 
+                    width="20" 
+                    height="20" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="#cccccc" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    style={{ transition: 'stroke 0.2s' }}
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
                 </button>
               </>
             )}
+
+            {/* Deploy Button */}
             {isReady && (
               <button
                 onClick={handleDeploy}
                 disabled={isDeploying}
+                title={isDeploying ? 'Deploying...' : 'Deploy to Blockchain'}
                 style={{ 
-                  padding: '0.5rem 1.5rem', 
-                  fontSize: '0.875rem', 
-                  backgroundColor: isDeploying ? '#475569' : '#16825d', 
-                  color: 'white', 
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'transparent', 
+                  color: isDeploying ? '#64748b' : '#10b981', 
                   border: 'none', 
-                  borderRadius: '0.25rem', 
-                  cursor: isDeploying ? 'not-allowed' : 'pointer', 
-                  fontWeight: '600' 
+                  cursor: isDeploying ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s',
+                  opacity: isDeploying ? 0.5 : 1,
+                  padding: 0
+                }}
+                onMouseEnter={(e) => {
+                  if (!isDeploying) {
+                    e.currentTarget.style.color = '#34d399'
+                    const svg = e.currentTarget.querySelector('svg')
+                    if (svg) svg.style.stroke = '#34d399'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isDeploying) {
+                    e.currentTarget.style.color = '#10b981'
+                    const svg = e.currentTarget.querySelector('svg')
+                    if (svg) svg.style.stroke = '#10b981'
+                  }
                 }}
               >
-                {isDeploying ? 'Deploying...' : 'Deploy to Blockchain'}
+                <svg 
+                  width="20" 
+                  height="20" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke={isDeploying ? '#64748b' : '#10b981'}
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  style={{ transition: 'stroke 0.2s' }}
+                >
+                  <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+                  <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
+                  <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+                  <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+                </svg>
               </button>
             )}
+
+            {/* Close Button */}
             <button
               onClick={onClose}
-              style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', backgroundColor: '#3e3e42', color: '#cccccc', border: 'none', borderRadius: '0.25rem', cursor: 'pointer' }}
+              title="Close"
+              style={{ 
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'transparent', 
+                color: '#cccccc', 
+                border: 'none', 
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                padding: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#f87171'
+                const svg = e.currentTarget.querySelector('svg')
+                if (svg) svg.style.stroke = '#f87171'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#cccccc'
+                const svg = e.currentTarget.querySelector('svg')
+                if (svg) svg.style.stroke = '#cccccc'
+              }}
             >
-              Close
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="#cccccc" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                style={{ transition: 'stroke 0.2s' }}
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             </button>
           </div>
         </div>

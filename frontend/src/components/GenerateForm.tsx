@@ -4,17 +4,23 @@ import { getUserGenerationsToday } from '../lib/contract'
 
 interface GenerateFormProps {
   onStartGeneration: (sessionId: string, description: string, category: string) => void
+  onLoginRequired: () => void
+  isLoggedIn: boolean
 }
 
-export function GenerateForm({ onStartGeneration }: GenerateFormProps) {
+export function GenerateForm({ onStartGeneration, onLoginRequired, isLoggedIn }: GenerateFormProps) {
   const { address } = useGetAccountInfo()
   const [description, setDescription] = useState('')
   const [dailyCount, setDailyCount] = useState(0)
   const [loadingCount, setLoadingCount] = useState(true)
 
   useEffect(() => {
-    fetchDailyCount()
-  }, [address])
+    if (isLoggedIn && address) {
+      fetchDailyCount()
+    } else {
+      setLoadingCount(false)
+    }
+  }, [address, isLoggedIn])
 
   const fetchDailyCount = async () => {
     setLoadingCount(true)
@@ -32,6 +38,13 @@ export function GenerateForm({ onStartGeneration }: GenerateFormProps) {
     e.preventDefault()
     
     if (!description.trim()) return
+
+    // Check if user is logged in
+    if (!isLoggedIn) {
+      onLoginRequired()
+      return
+    }
+    
     if (dailyCount >= 3) {
       alert('Daily limit reached (3/day)')
       return
@@ -104,7 +117,7 @@ export function GenerateForm({ onStartGeneration }: GenerateFormProps) {
         </div>
       </div>
 
-      {/* Input Section - Icon Button Centered */}
+      {/* Input Section */}
       <div style={{
         backgroundColor: 'rgba(30, 30, 30, 0.6)',
         backdropFilter: 'blur(20px)',
@@ -115,7 +128,7 @@ export function GenerateForm({ onStartGeneration }: GenerateFormProps) {
         position: 'relative'
       }}>
         {/* Daily Count Badge */}
-        {!loadingCount && (
+        {isLoggedIn && !loadingCount && (
           <div style={{
             position: 'absolute',
             top: '-0.75rem',
@@ -160,10 +173,10 @@ export function GenerateForm({ onStartGeneration }: GenerateFormProps) {
               required
             />
 
-            {/* Icon Button - Centered */}
+            {/* Icon Button */}
             <button
               type="submit"
-              disabled={!description.trim() || dailyCount >= 3}
+              disabled={!description.trim() || (isLoggedIn && dailyCount >= 3)}
               title="Generate"
               style={{
                 width: '40px',
@@ -171,12 +184,12 @@ export function GenerateForm({ onStartGeneration }: GenerateFormProps) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: !description.trim() || dailyCount >= 3 
+                background: (!description.trim() || (isLoggedIn && dailyCount >= 3))
                   ? 'rgba(255, 255, 255, 0.1)' 
                   : '#06b6d4',
                 border: 'none',
                 borderRadius: '0.5rem',
-                cursor: !description.trim() || dailyCount >= 3 ? 'not-allowed' : 'pointer',
+                cursor: (!description.trim() || (isLoggedIn && dailyCount >= 3)) ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s',
                 flexShrink: 0,
                 fontSize: '1.25rem',
@@ -189,6 +202,19 @@ export function GenerateForm({ onStartGeneration }: GenerateFormProps) {
           </div>
         </form>
       </div>
+
+      {/* Helper Text */}
+      <p style={{ 
+        textAlign: 'center', 
+        fontSize: '0.875rem', 
+        color: 'rgba(255, 255, 255, 0.4)', 
+        marginTop: '1.5rem' 
+      }}>
+        {isLoggedIn 
+          ? 'Be specific about features and functionality for best results'
+          : 'Connect your wallet to start generating smart contracts'
+        }
+      </p>
     </div>
   )
 }
