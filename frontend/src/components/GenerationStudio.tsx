@@ -4,6 +4,7 @@ import { sendTransactions } from '@multiversx/sdk-dapp/services'
 import { refreshAccount } from '@multiversx/sdk-dapp/utils'
 import Editor from '@monaco-editor/react'
 import Split from 'react-split'
+import JSZip from 'jszip'
 import { SSEClient } from '../lib/sseClient'
 
 interface GenerationStudioProps {
@@ -178,17 +179,19 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
     URL.revokeObjectURL(url)
   }
 
-  const downloadAll = () => {
-    let allCode = ''
+  const downloadAll = async () => {
+    const zip = new JSZip()
+    const folder = zip.folder('contract-project')
+    
     files.forEach((content, path) => {
-      allCode += `\\n\\n=== ${path} ===\\n\\n${content}`
+      folder?.file(path, content)
     })
     
-    const blob = new Blob([allCode], { type: 'text/plain' })
+    const blob = await zip.generateAsync({ type: 'blob' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'contract-project.txt'
+    a.download = 'contract-project.zip'
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
