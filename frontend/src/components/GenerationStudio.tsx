@@ -201,15 +201,31 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#1e1e1e' }}>
       {/* Header */}
-      <div style={{ backgroundColor: '#2d2d30', borderBottom: '1px solid #3e3e42', padding: '1rem 1.5rem' }}>
+      <div style={{ backgroundColor: '#2d2d30', borderBottom: '1px solid #3e3e42', padding: '0.5rem 1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h2 style={{ margin: 0, color: '#cccccc', fontSize: '1.25rem' }}>
-              Generation Studio - Session #{sessionId.substring(0, 8)}
-            </h2>
-            <p style={{ margin: '0.25rem 0 0 0', color: '#858585', fontSize: '0.875rem' }}>
-              {status} {progress > 0 && `(${progress}%)`}
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <h2 style={{ margin: 0, color: '#cccccc', fontSize: '0.875rem', fontWeight: '600' }}>
+                Session #{sessionId.substring(0, 8)}
+              </h2>
+              <span style={{ color: '#858585', fontSize: '0.75rem' }}>
+                {status}
+              </span>
+            </div>
+            {ipfsHash && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0.75rem', backgroundColor: '#1e1e1e', borderRadius: '0.25rem' }}>
+                <span style={{ color: '#858585', fontSize: '0.75rem' }}>IPFS:</span>
+                <a 
+                  href={`https://gateway.pinata.cloud/ipfs/${ipfsHash}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  style={{ color: '#0e639c', fontSize: '0.75rem', textDecoration: 'none' }}
+                  title={ipfsHash}
+                >
+                  {ipfsHash.substring(0, 8)}...{ipfsHash.substring(ipfsHash.length - 6)}
+                </a>
+              </div>
+            )}
           </div>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             {files.size > 0 && (
@@ -407,23 +423,17 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
             </button>
           </div>
         </div>
-        
-        {/* Progress bar */}
-        {!isComplete && (
-          <div style={{ marginTop: '1rem', backgroundColor: '#3e3e42', borderRadius: '0.25rem', height: '0.5rem', overflow: 'hidden' }}>
-            <div style={{ width: `${progress}%`, height: '100%', backgroundColor: '#0e639c', transition: 'width 0.3s' }} />
-          </div>
-        )}
       </div>
 
       {/* Main content - Resizable panels */}
-      <Split
-        sizes={[20, 50, 30]}
-        minSize={100}
-        gutterSize={8}
-        gutterStyle={() => ({ backgroundColor: '#3e3e42' })}
-        style={{ display: 'flex', flex: 1, overflow: 'hidden' }}
-      >
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        <Split
+          sizes={[20, 50, 30]}
+          minSize={150}
+          gutterSize={4}
+          className="split-horizontal"
+          style={{ display: 'flex', width: '100%', height: '100%' }}
+        >
         {/* File tree */}
         <div style={{ backgroundColor: '#252526', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <div style={{ backgroundColor: '#2d2d30', padding: '0.5rem 1rem', borderBottom: '1px solid #3e3e42' }}>
@@ -499,16 +509,10 @@ export function GenerationStudio({ sessionId, description, category, onClose }: 
             )}
           </div>
         </div>
-      </Split>
+        </Split>
+      </div>
 
-      {/* IPFS Info */}
-      {ipfsHash && (
-        <div style={{ backgroundColor: '#2d2d30', borderTop: '1px solid #3e3e42', padding: '0.75rem 1.5rem' }}>
-          <span style={{ color: '#858585', fontSize: '0.875rem' }}>
-            IPFS: <a href={`https://gateway.pinata.cloud/ipfs/${ipfsHash}`} target="_blank" rel="noopener noreferrer" style={{ color: '#0e639c' }}>{ipfsHash}</a>
-          </span>
-        </div>
-      )}
+
     </div>
   )
 }

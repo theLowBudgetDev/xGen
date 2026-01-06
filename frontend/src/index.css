@@ -54,6 +54,21 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* React Split styles */
+.gutter {
+  background-color: #3e3e42;
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+  cursor: col-resize;
+}
+
+.gutter.gutter-horizontal:hover {
+  background-color: #0e639c;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
