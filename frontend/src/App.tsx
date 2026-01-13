@@ -54,7 +54,7 @@ function App() {
               backgroundColor: "rgba(20, 20, 20, 0.8)",
               backdropFilter: "blur(10px)",
               borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-              padding: "1rem 2rem",
+              padding: "0.75rem 2rem",
               position: "sticky",
               top: 0,
               zIndex: 100,
@@ -71,7 +71,7 @@ function App() {
             >
               <h1
                 style={{
-                  fontSize: "1.25rem",
+                  fontSize: "1rem",
                   fontWeight: "700",
                   margin: 0,
                   color: "#ffffff",
@@ -87,19 +87,28 @@ function App() {
                   <>
                     <button
                       onClick={() => navigate('/history')}
+                      title="History"
                       style={{
-                        padding: "0.5rem 1rem",
-                        fontSize: "0.875rem",
-                        color: "#ffffff",
-                        background: "rgba(255, 255, 255, 0.1)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        borderRadius: "0.5rem",
+                        width: "36px",
+                        height: "36px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "rgba(255, 255, 255, 0.7)",
+                        background: "transparent",
+                        border: "none",
                         cursor: "pointer",
-                        fontWeight: "500",
                         transition: "all 0.2s",
+                        padding: 0
                       }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = "#ffffff"}
+                      onMouseLeave={(e) => e.currentTarget.style.color = "rgba(255, 255, 255, 0.7)"}
                     >
-                      History
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                        <path d="M12 7v5l4 2"></path>
+                      </svg>
                     </button>
                     <span
                       style={{
@@ -113,19 +122,28 @@ function App() {
                     </span>
                     <button
                       onClick={handleLogout}
+                      title="Logout"
                       style={{
-                        padding: "0.5rem 1rem",
-                        fontSize: "0.875rem",
-                        color: "#ffffff",
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        borderRadius: "0.5rem",
+                        width: "36px",
+                        height: "36px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "rgba(255, 255, 255, 0.7)",
+                        background: "transparent",
+                        border: "none",
                         cursor: "pointer",
-                        fontWeight: "500",
                         transition: "all 0.2s",
+                        padding: 0
                       }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = "#ffffff"}
+                      onMouseLeave={(e) => e.currentTarget.style.color = "rgba(255, 255, 255, 0.7)"}
                     >
-                      Logout
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                      </svg>
                     </button>
                   </>
                 ) : (
