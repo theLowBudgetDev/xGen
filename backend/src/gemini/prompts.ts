@@ -25,7 +25,46 @@ CODE STRUCTURE:
 - Add events
 - Define structs/enums at the end with #[type_abi]
 
+COMMON PITFALLS TO AVOID:
+- DO NOT use TypeAbi derive (deprecated) - use #[type_abi] attribute instead
+- DO NOT use &self in storage mapper definitions
+- DO NOT forget #[storage_mapper("name")] attribute
+- DO NOT use ManagedVec without proper type annotations
+- DO NOT forget to import types (BigUint, TokenIdentifier, etc.)
+- Events MUST have exactly 1 non-indexed data field (use #[indexed] for others)
+- Always use ManagedBuffer for strings, not String or &str
+- Use Self::Api for generic type parameters in structs
+- All endpoints must have proper visibility (#[endpoint], #[view], etc.)
+- Storage mappers must return SingleValueMapper, VecMapper, MapMapper, etc.
+
+MINIMAL EXAMPLE STRUCTURE:
+\`\`\`rust
+#![no_std]
+
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
+
+#[multiversx_sc::contract]
+pub trait YourContract {
+    #[init]
+    fn init(&self) {
+        // initialization
+    }
+
+    #[upgrade]
+    fn upgrade(&self) {}
+
+    // endpoints here
+
+    // storage mappers
+    #[view(getCounter)]
+    #[storage_mapper("counter")]
+    fn counter(&self) -> SingleValueMapper<u64>;
+}
+\`\`\`
+
 OUTPUT: Only the complete Rust code for contract.rs, no explanations or markdown.`;
+
 
 export function generateContractPrompt(description: string, category: string): string {
   return `${SYSTEM_PROMPT}

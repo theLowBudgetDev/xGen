@@ -34,7 +34,7 @@ let eventListener: EventListener;
 let oracle: OracleCallback;
 
 async function initializeServices() {
-  console.log('🚀 Initializing backend services...');
+  console.log('[INIT] Initializing backend services...');
 
   try {
     // Validate configuration
@@ -43,14 +43,14 @@ async function initializeServices() {
     const mockMode = process.env.MOCK_MODE === 'true';
 
     if (mockMode) {
-      console.log('🎭 MOCK MODE - Skipping external service initialization');
-      console.log('✅ All services initialized (mock mode)');
+      console.log('[MOCK MODE] Skipping external service initialization');
+      console.log('[SUCCESS] All services initialized (mock mode)');
       return;
     }
 
     // Initialize Gemini
     codeGenerator = new CodeGenerator(config.geminiApiKey);
-    console.log('✅ Gemini AI initialized');
+    console.log('[SUCCESS] Gemini AI initialized');
 
     // Initialize IPFS
     ipfsStorage = new IPFSStorage(config.pinataApiKey, config.pinataSecretKey);
@@ -69,7 +69,7 @@ async function initializeServices() {
       if (!mvxConnected) {
         console.warn('⚠️  MultiversX connection failed, event listener disabled');
       } else {
-        console.log('✅ MultiversX event listener initialized');
+        console.log('[SUCCESS] MultiversX event listener initialized');
       }
 
       // Initialize Oracle (if wallet PEM exists)
@@ -82,7 +82,7 @@ async function initializeServices() {
         );
         const oracleReady = await oracle.testOracle();
         if (oracleReady) {
-          console.log('✅ Oracle callback initialized');
+          console.log('[SUCCESS] Oracle callback initialized');
           const balance = await oracle.getBalance();
           console.log(`   Oracle balance: ${balance}`);
         }
@@ -94,10 +94,10 @@ async function initializeServices() {
       console.warn('⚠️  No contract address configured, MultiversX integration disabled');
     }
 
-    console.log('✅ All services initialized');
+    console.log('[SUCCESS] All services initialized');
 
   } catch (error) {
-    console.error('❌ Service initialization failed:', error);
+    console.error('[ERROR] Service initialization failed:', error);
     process.exit(1);
   }
 }

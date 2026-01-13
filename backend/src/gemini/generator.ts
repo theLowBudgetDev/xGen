@@ -10,12 +10,12 @@ export class CodeGenerator {
   constructor(apiKey: string) {
     this.genAI = new GoogleGenerativeAI(apiKey);
     this.model = this.genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.5-flash',
       generationConfig: {
         temperature: 0.7,
         topP: 0.95,
         topK: 40,
-        maxOutputTokens: 8192,
+        maxOutputTokens: 32768, // Increased to allow longer contracts
       }
     });
   }
@@ -42,11 +42,11 @@ export class CodeGenerator {
         throw new Error('Generated code missing contract attribute');
       }
       
-      console.log(`✅ Code generated successfully (${code.length} bytes)`);
+      console.log(`[SUCCESS] Code generated successfully (${code.length} bytes)`);
       return code;
       
     } catch (error) {
-      console.error('❌ Code generation failed:', error);
+      console.error('[ERROR] Code generation failed:', error);
       throw error;
     }
   }

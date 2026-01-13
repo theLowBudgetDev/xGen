@@ -8,7 +8,7 @@ export async function fixCompilationErrors(
   errors: string,
   attempt: number
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
   const prompt = `You are an expert Rust developer specializing in MultiversX smart contracts.
 
@@ -27,9 +27,18 @@ INSTRUCTIONS:
 2. Fix ONLY the errors - do not modify working code
 3. Maintain the contract's functionality
 4. Use MultiversX SC framework v0.64.0 conventions
-5. Return ONLY the fixed Rust code, no explanations
+5. Return ONLY the fixed Rust code, no explanations or markdown
 
-ATTEMPT: ${attempt}/3
+COMMON FIXES FOR MULTIVERSX CONTRACTS:
+- Replace TypeAbi derive with #[type_abi] attribute
+- Ensure storage mappers have #[storage_mapper("name")] and return proper types
+- Events must have exactly 1 non-indexed data field (add #[indexed] to others)
+- Use ManagedBuffer instead of String/&str
+- Use Self::Api for generic type parameters in structs
+- Ensure all imports are present (multiversx_sc::imports!(), multiversx_sc::derive_imports!())
+- Storage mapper functions should not have &self in the signature definition
+
+ATTEMPT: ${attempt}/2
 
 Return the complete fixed code:`
 
@@ -53,7 +62,7 @@ Return the complete fixed code:`
 }
 
 export async function generateTests(code: string): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
   const prompt = `Generate comprehensive integration tests for this MultiversX smart contract.
 

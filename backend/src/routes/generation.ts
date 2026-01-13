@@ -104,58 +104,37 @@ async function runGeneration(sessionId: string, description: string, category: s
       return
     }
 
-    // Step 3: Compile and self-heal
-    streamManager.sendStatus(sessionId, 'Compiling contract...', 50)
+    // MVP: Skip compilation - users compile locally
+    // This removes the need for Rust/mxpy installation on the backend
+    streamManager.sendStatus(sessionId, 'Code generation complete!', 80)
+    streamManager.sendTerminal(sessionId, '\nContract code generated successfully!\n')
+    streamManager.sendTerminal(sessionId, 'Download the code and compile locally with: sc-meta all build\n')
+    streamManager.sendTerminal(sessionId, 'Then deploy with: mxpy contract deploy --bytecode=output/contract.wasm\n')
 
-    const healResult = await compileAndHeal(contractCode, streamManager, sessionId, 3)
-
-    if (!healResult.success) {
-      streamManager.sendStatus(sessionId, 'Compilation failed', 100)
-      streamManager.sendComplete(sessionId, {
-        success: false,
-        error: 'Failed to compile after 3 attempts',
-        errors: healResult.errors
-      })
-      return
-    }
-
-    // Step 4: Generate tests
-    streamManager.sendStatus(sessionId, 'Generating tests...', 70)
-    streamManager.sendTerminal(sessionId, '\\n> Generating integration tests...\\n')
-
-    try {
-      const tests = await generateTests(healResult.code)
-      streamManager.sendFile(sessionId, 'tests/integration_test.rs', tests)
-      streamManager.sendTerminal(sessionId, '✓ Generated tests\\n')
-    } catch (error) {
-      streamManager.sendTerminal(sessionId, '⚠ Test generation failed (optional)\\n', false)
-    }
-
-    // Step 5: Upload to IPFS
+    // Upload to IPFS (still useful for on-chain reference)
     streamManager.sendStatus(sessionId, 'Uploading to IPFS...', 85)
-    streamManager.sendTerminal(sessionId, '\\n> Uploading code to IPFS...\\n')
+    streamManager.sendTerminal(sessionId, '\n> Uploading code to IPFS...\n')
 
-    const wasmBuffer = fs.readFileSync(healResult.wasmPath!)
-    const ipfsHash = await ipfsStorage.uploadCode(wasmBuffer.toString(), {
+    const ipfsHash = await ipfsStorage.uploadCode(contractCode, {
       generationId: Date.now(),
       description,
       category,
       creator: 'user'
     })
 
-    streamManager.sendTerminal(sessionId, `✓ Uploaded to IPFS: ${ipfsHash}\\n`)
+    streamManager.sendTerminal(sessionId, `Uploaded to IPFS: ${ipfsHash}\n`)
 
-    // Step 6: Complete
-    streamManager.sendStatus(sessionId, 'Ready to deploy!', 100)
-    streamManager.sendTerminal(sessionId, '\\n✓ Contract ready for deployment!\\n')
+    // Complete
+    streamManager.sendStatus(sessionId, 'Ready to download!', 100)
+    streamManager.sendTerminal(sessionId, '\nGeneration complete! Download your contract and compile locally.\n')
 
     streamManager.sendComplete(sessionId, {
       success: true,
-      code: healResult.code,
-      wasmPath: healResult.wasmPath,
-      abiPath: healResult.abiPath,
+      code: contractCode,
+      wasmPath: null, // No WASM - user compiles locally
+      abiPath: null,
       ipfsHash,
-      attempts: healResult.attempts
+      attempts: 1
     })
 
   } catch (error: any) {
